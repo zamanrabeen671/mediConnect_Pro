@@ -1,0 +1,41 @@
+# ---- Python ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# ---- Virtual Environment ----
+venv/
+env/
+ENV/
+
+# ---- IDE / Editor ----
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---- Environment Variables ----
+*.env
+.env.*
+!example.env
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- Logs ----
+*.log
+logs/
+
+# ---- Cache ----
+.cache/
+pytest_cache/
+.coverage
+coverage.xml
+
+# ---- Byte-compiled ----
+*.rej
+
+# ---- Uvicorn / FastAP
