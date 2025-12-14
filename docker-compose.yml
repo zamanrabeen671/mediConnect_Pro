@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_mediconnect
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mediconnect_pro
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  api:
+    build: .
+    container_name: mediconnect_api
+    depends_on:
+      - mysql
+    environment:
+      DATABASE_URL: mysql+pymysql://root:root@mysql:3306/mediconnect_pro
+    ports:
+      - "8000:8000"
+
+volumes:
+  mysql_data:
