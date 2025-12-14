@@ -1,9 +1,21 @@
-from sqlalchemy import Column, Integer, String, TIMESTAMP, ForeignKey, Time, Date, Text
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    TIMESTAMP,
+    ForeignKey,
+    Time,
+    Date,
+    Text
+)
 from sqlalchemy.orm import relationship
 from .database import Base
 from datetime import datetime
 
 
+# =========================
+# USERS
+# =========================
 class User(Base):
     __tablename__ = "users"
 
@@ -14,6 +26,21 @@ class User(Base):
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
 
+# =========================
+# BLOOD GROUPS (NEW)
+# =========================
+class BloodGroup(Base):
+    __tablename__ = "blood_groups"
+
+    id = Column(Integer, primary_key=True, index=True)
+    group_name = Column(String(10), unique=True, nullable=False)
+
+    patients = relationship("Patient", back_populates="blood_group")
+
+
+# =========================
+# DOCTORS
+# =========================
 class Doctor(Base):
     __tablename__ = "doctors"
 
@@ -24,19 +51,37 @@ class Doctor(Base):
     chamber = Column(String(256))
     status = Column(String(20), default="pending")
 
+    schedules = relationship("DoctorSchedule", back_populates="doctor")
+    appointments = relationship("Appointment", back_populates="doctor")
 
+
+# =========================
+# PATIENTS
+# =========================
 class Patient(Base):
     __tablename__ = "patients"
 
     id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     full_name = Column(String(120))
     age = Column(Integer)
-    gender = Column(String(20))
+    gender = Column(String(20))        # male | female | other
     phone = Column(String(20))
+
+    # Legacy column (can remove later)
     blood_group = Column(String(20))
+
+    # Normalized column (NEW)
+    blood_group_id = Column(Integer, ForeignKey("blood_groups.id"))
+
     address = Column(String(256))
 
+    blood_group = relationship("BloodGroup", back_populates="patients")
+    appointments = relationship("Appointment", back_populates="patient")
 
+
+# =========================
+# DOCTOR SCHEDULE
+# =========================
 class DoctorSchedule(Base):
     __tablename__ = "doctor_schedules"
 
@@ -47,7 +92,13 @@ class DoctorSchedule(Base):
     end_time = Column(Time)
     max_patients = Column(Integer)
 
+    doctor = relationship("Doctor", back_populates="schedules")
+    appointments = relationship("Appointment", back_populates="schedule")
 
+
+# =========================
+# APPOINTMENTS
+# =========================
 class Appointment(Base):
     __tablename__ = "appointments"
 
@@ -55,17 +106,32 @@ class Appointment(Base):
     doctor_id = Column(Integer, ForeignKey("doctors.id"), nullable=False)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
     schedule_id = Column(Integer, ForeignKey("doctor_schedules.id"), nullable=False)
+
     appointment_date = Column(Date)
     status = Column(String(20), default="pending")
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
+    doctor = relationship("Doctor", back_populates="appointments")
+    patient = relationship("Patient", back_populates="appointments")
+    schedule = relationship("DoctorSchedule", back_populates="appointments")
+    prescription = relationship("Prescription", back_populates="appointment", uselist=False)
 
+
+# =========================
+# PRESCRIPTIONS
+# =========================
 class Prescription(Base):
     __tablename__ = "prescriptions"
 
     id = Column(Integer, primary_key=True)
-    appointment_id = Column(Integer, ForeignKey("appointments.id"), unique=True)
+    appointment_id = Column(
+        Integer,
+        ForeignKey("appointments.id"),
+        unique=True
+    )
     patient_id = Column(Integer, ForeignKey("patients.id"))
     notes = Column(Text)
     document_path = Column(String(255))
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
+
+    appointment = relationship("Appointment", back_populates="prescription")

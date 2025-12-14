@@ -1,8 +1,11 @@
 from pydantic import BaseModel
 from datetime import time, date
+from typing import Optional
 
 
-# ---- USERS ------
+# =========================
+# USERS
+# =========================
 class UserCreate(BaseModel):
     email: str
     password: str
@@ -18,7 +21,24 @@ class UserOut(BaseModel):
         orm_mode = True
 
 
-# ---- DOCTOR -----
+# =========================
+# BLOOD GROUP
+# =========================
+class BloodGroupCreate(BaseModel):
+    group_name: str
+
+
+class BloodGroupOut(BaseModel):
+    id: int
+    group_name: str
+
+    class Config:
+        orm_mode = True
+
+
+# =========================
+# DOCTOR
+# =========================
 class DoctorCreate(BaseModel):
     full_name: str
     specialization: str
@@ -28,29 +48,41 @@ class DoctorCreate(BaseModel):
 
 class DoctorOut(DoctorCreate):
     id: int
+    status: str
 
     class Config:
         orm_mode = True
 
 
-# ---- PATIENT ----
+# =========================
+# PATIENT
+# =========================
 class PatientCreate(BaseModel):
     full_name: str
     age: int
     gender: str
     phone: str
-    blood_group: str
+    blood_group_id: int    # FK instead of text
     address: str
 
 
-class PatientOut(PatientCreate):
+class PatientOut(BaseModel):
     id: int
+    full_name: str
+    age: int
+    gender: str
+    phone: str
+    address: str
+
+    blood_group: BloodGroupOut   # nested response
 
     class Config:
         orm_mode = True
 
 
-# ---- SCHEDULE ----
+# =========================
+# SCHEDULE
+# =========================
 class ScheduleCreate(BaseModel):
     doctor_id: int
     day_of_week: str
@@ -66,7 +98,9 @@ class ScheduleOut(ScheduleCreate):
         orm_mode = True
 
 
-# ---- APPOINTMENT ----
+# =========================
+# APPOINTMENT
+# =========================
 class AppointmentCreate(BaseModel):
     doctor_id: int
     patient_id: int
@@ -82,7 +116,9 @@ class AppointmentOut(AppointmentCreate):
         orm_mode = True
 
 
-# ---- PRESCRIPTION ----
+# =========================
+# PRESCRIPTION
+# =========================
 class PrescriptionCreate(BaseModel):
     appointment_id: int
     patient_id: int
@@ -91,7 +127,7 @@ class PrescriptionCreate(BaseModel):
 
 class PrescriptionOut(PrescriptionCreate):
     id: int
-    document_path: str | None = None
+    document_path: Optional[str] = None
 
     class Config:
         orm_mode = True
