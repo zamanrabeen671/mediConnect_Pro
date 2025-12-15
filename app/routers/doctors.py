@@ -1,8 +1,7 @@
-"""
-Doctor routes
-"""
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
+
+from app.models import Doctor
 
 from ..database import get_db
 from ..schemas import DoctorCreate, DoctorOut
@@ -17,8 +16,8 @@ def create_doctor(
     doctor: DoctorCreate,
     db: Session = Depends(get_db)
 ):
-    """Create a new doctor"""
-    return DoctorService.create_doctor(db, doctor, user_id=1)  # TODO: Get from current user
+   
+    return DoctorService.create_doctor(db, doctor, user_id=1)
 
 
 @router.get("/{doctor_id}", response_model=DoctorOut)
@@ -39,7 +38,7 @@ def list_doctors(
 
 @router.get("/status/{status}", response_model=list[DoctorOut])
 def list_doctors_by_status(status: str, db: Session = Depends(get_db)):
-    """List doctors by status"""
+    
     return DoctorService.list_doctors_by_status(db, status)
 
 

@@ -1,6 +1,3 @@
-"""
-Security utilities for JWT token generation and validation
-"""
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import jwt, JWTError
@@ -13,16 +10,6 @@ from ..models import User
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """
-    Create JWT access token with expiration
-    
-    Args:
-        data: Dictionary containing token claims
-        expires_delta: Optional custom expiration time
-    
-    Returns:
-        Encoded JWT token
-    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -39,18 +26,6 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 
 def verify_token(token: str) -> dict:
-    """
-    Verify and decode JWT token
-    
-    Args:
-        token: JWT token string
-    
-    Returns:
-        Decoded token data
-    
-    Raises:
-        HTTPException: If token is invalid
-    """
     try:
         payload = jwt.decode(
             token,
@@ -70,19 +45,6 @@ def get_current_user(
     token: str = Depends(lambda: ""),
     db: Session = Depends(get_db)
 ) -> User:
-    """
-    Get current authenticated user from token
-    
-    Args:
-        token: Bearer token
-        db: Database session
-    
-    Returns:
-        Current user object
-    
-    Raises:
-        HTTPException: If user not found or token invalid
-    """
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -109,9 +71,6 @@ def get_current_user(
 
 
 def get_current_doctor(current_user: User = Depends(get_current_user)) -> User:
-    """
-    Get current user and verify they are a doctor
-    """
     if current_user.role != "doctor":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -121,9 +80,7 @@ def get_current_doctor(current_user: User = Depends(get_current_user)) -> User:
 
 
 def get_current_patient(current_user: User = Depends(get_current_user)) -> User:
-    """
-    Get current user and verify they are a patient
-    """
+    
     if current_user.role != "patient":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
