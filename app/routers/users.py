@@ -10,7 +10,7 @@ from ..services.user_service import UserService
 from ..core.security import get_current_user
 from ..models import User
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
 
 @router.get("/me", response_model=UserOut)
@@ -21,7 +21,7 @@ def get_current_user_info(current_user: User = Depends(get_current_user)):
 
 @router.get("/{user_id}", response_model=UserOut)
 def get_user(user_id: int, db: Session = Depends(get_db)):
-    """Get user by ID"""
+    
     return UserService.get_user(db, user_id)
 
 

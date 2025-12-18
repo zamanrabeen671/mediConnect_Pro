@@ -3,9 +3,11 @@ from datetime import time, date
 from typing import Optional
 
 
-# =========================
-# USERS
-# =========================
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+    
 class UserCreate(BaseModel):
     email: str
     password: str
@@ -17,8 +19,9 @@ class UserOut(BaseModel):
     email: str
     role: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 
 # =========================
@@ -36,22 +39,25 @@ class BloodGroupOut(BaseModel):
         orm_mode = True
 
 
-# =========================
-# DOCTOR
-# =========================
 class DoctorCreate(BaseModel):
     full_name: str
     specialization: str
     phone: str
     chamber: str
+    institute: str
+    bmdcNumber: str
+    experience: str
+    qualifications: str
+    consultationFee: str
 
 
 class DoctorOut(DoctorCreate):
     id: int
     status: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 
 # =========================

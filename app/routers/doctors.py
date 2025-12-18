@@ -8,7 +8,7 @@ from ..schemas import DoctorCreate, DoctorOut
 from ..services.doctor_service import DoctorService
 from ..core.security import get_current_doctor
 
-router = APIRouter(prefix="/doctors", tags=["Doctors"])
+router = APIRouter(prefix="/api/v1/doctors", tags=["Doctors"])
 
 
 @router.post("/", response_model=DoctorOut, status_code=status.HTTP_201_CREATED)

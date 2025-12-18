@@ -13,9 +13,7 @@ from .database import Base
 from datetime import datetime
 
 
-# =========================
-# USERS
-# =========================
+
 class User(Base):
     __tablename__ = "users"
 
@@ -26,9 +24,7 @@ class User(Base):
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
 
-# =========================
-# BLOOD GROUPS (NEW)
-# =========================
+
 class BloodGroup(Base):
     __tablename__ = "blood_groups"
 
@@ -38,9 +34,7 @@ class BloodGroup(Base):
     patients = relationship("Patient", back_populates="blood_group")
 
 
-# =========================
-# DOCTORS
-# =========================
+
 class Doctor(Base):
     __tablename__ = "doctors"
 
@@ -49,28 +43,28 @@ class Doctor(Base):
     specialization = Column(String(120))
     phone = Column(String(20))
     chamber = Column(String(256))
+    institute = Column(String(256))
+    bmdcNumber = Column(String(20))
+    experience = Column(String(20))
+    qualifications = Column(Text)
+    consultationFee = Column(String(20))
     status = Column(String(20), default="pending")
 
     schedules = relationship("DoctorSchedule", back_populates="doctor")
     appointments = relationship("Appointment", back_populates="doctor")
 
 
-# =========================
-# PATIENTS
-# =========================
 class Patient(Base):
     __tablename__ = "patients"
 
     id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     full_name = Column(String(120))
     age = Column(Integer)
-    gender = Column(String(20))        # male | female | other
+    gender = Column(String(20))
     phone = Column(String(20))
 
-    # Legacy column (can remove later)
     blood_group = Column(String(20))
 
-    # Normalized column (NEW)
     blood_group_id = Column(Integer, ForeignKey("blood_groups.id"))
 
     address = Column(String(256))
@@ -79,9 +73,7 @@ class Patient(Base):
     appointments = relationship("Appointment", back_populates="patient")
 
 
-# =========================
-# DOCTOR SCHEDULE
-# =========================
+
 class DoctorSchedule(Base):
     __tablename__ = "doctor_schedules"
 
@@ -96,9 +88,7 @@ class DoctorSchedule(Base):
     appointments = relationship("Appointment", back_populates="schedule")
 
 
-# =========================
-# APPOINTMENTS
-# =========================
+
 class Appointment(Base):
     __tablename__ = "appointments"
 
@@ -117,9 +107,7 @@ class Appointment(Base):
     prescription = relationship("Prescription", back_populates="appointment", uselist=False)
 
 
-# =========================
-# PRESCRIPTIONS
-# =========================
+
 class Prescription(Base):
     __tablename__ = "prescriptions"
 

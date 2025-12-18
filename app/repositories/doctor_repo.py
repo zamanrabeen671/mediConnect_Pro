@@ -7,26 +7,24 @@ from ..schemas import DoctorCreate
 
 
 class DoctorRepository:
-    """Repository for Doctor database operations"""
     
     @staticmethod
     def create_doctor(db: Session, doctor: DoctorCreate, user_id: int) -> Doctor:
-        """Create a new doctor"""
+        doctor_data = doctor.model_dump(exclude_unset=True)
+
         db_doctor = Doctor(
             id=user_id,
-            full_name=doctor.full_name,
-            specialization=doctor.specialization,
-            phone=doctor.phone,
-            chamber=doctor.chamber
+            **doctor_data
         )
+
         db.add(db_doctor)
         db.commit()
         db.refresh(db_doctor)
         return db_doctor
+
     
     @staticmethod
     def get_doctor_by_id(db: Session, doctor_id: int) -> Doctor:
-        """Get doctor by ID"""
         return db.query(Doctor).filter(Doctor.id == doctor_id).first()
     
     @staticmethod
