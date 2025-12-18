@@ -22,7 +22,6 @@ def create_doctor(
 
 @router.get("/{doctor_id}", response_model=DoctorOut)
 def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
-    """Get doctor by ID"""
     return DoctorService.get_doctor(db, doctor_id)
 
 
@@ -32,7 +31,6 @@ def list_doctors(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    """List all doctors"""
     return DoctorService.list_doctors(db, skip, limit)
 
 
@@ -57,6 +55,7 @@ def delete_doctor(doctor_id: int, db: Session = Depends(get_db)):
     """Delete doctor"""
     DoctorService.delete_doctor(db, doctor_id)
     return None
+
 @router.get("/{doctor_id}", response_model=DoctorOut)
 def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
     return db.query(Doctor).filter(Doctor.id == doctor_id).first()

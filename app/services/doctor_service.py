@@ -21,7 +21,6 @@ class DoctorService:
     
     @staticmethod
     def list_doctors(db: Session, skip: int = 0, limit: int = 100):
-        """List all doctors"""
         return DoctorRepository.get_all_doctors(db, skip, limit)
     
     @staticmethod
@@ -31,7 +30,6 @@ class DoctorService:
     
     @staticmethod
     def update_doctor(db: Session, doctor_id: int, update_data: dict) -> DoctorOut:
-        """Update doctor"""
         doctor = DoctorRepository.update_doctor(db, doctor_id, update_data)
         if not doctor:
             raise Exception("Doctor not found")
