@@ -33,7 +33,11 @@ class UserService:
         
         # Create access token
         token = create_access_token({"id": user.id, "role": user.role})
-        
+        if user.role == "doctor":
+            from .doctor_service import DoctorService
+            doctor = DoctorService.get_doctor(db, user.id)
+            user.status = doctor.status
+        print("User authenticated:", user)
         return {
             "token": token,
             "user": UserOut.from_orm(user)
@@ -43,6 +47,10 @@ class UserService:
     def get_user(db: Session, user_id: int) -> UserOut:
         """Get user by ID"""
         user = UserRepository.get_user_by_id(db, user_id)
+        if user.role == "doctor":
+            from .doctor_service import DoctorService
+            doctor = DoctorService.get_doctor(db, user.id)
+            user.status = doctor.status
         if not user:
             raise Exception("User not found")
         return user
