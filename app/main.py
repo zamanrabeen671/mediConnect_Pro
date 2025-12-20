@@ -11,7 +11,8 @@ from .routers import (
     patients_router,
     schedules_router,
     appointments_router,
-    prescriptions_router
+    prescriptions_router,
+    blood_group_router,
 )
 
 # Create database tables
@@ -45,6 +46,7 @@ app.include_router(patients_router)
 app.include_router(schedules_router)
 app.include_router(appointments_router)
 app.include_router(prescriptions_router)
+app.include_router(blood_group_router)
 
 
 # Health check endpoint

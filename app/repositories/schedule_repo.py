@@ -7,7 +7,6 @@ from ..schemas import ScheduleCreate
 
 
 class ScheduleRepository:
-    """Repository for DoctorSchedule database operations"""
     
     @staticmethod
     def create_schedule(db: Session, schedule: ScheduleCreate) -> DoctorSchedule:
@@ -17,7 +16,8 @@ class ScheduleRepository:
             day_of_week=schedule.day_of_week,
             start_time=schedule.start_time,
             end_time=schedule.end_time,
-            max_patients=schedule.max_patients
+            max_patients=schedule.max_patients,
+            duration_per_appointment=schedule.duration_per_appointment
         )
         db.add(db_schedule)
         db.commit()

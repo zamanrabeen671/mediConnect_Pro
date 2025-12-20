@@ -11,7 +11,6 @@ class AppointmentRepository:
     
     @staticmethod
     def create_appointment(db: Session, appointment: AppointmentCreate) -> Appointment:
-        """Create a new appointment"""
         db_appointment = Appointment(
             doctor_id=appointment.doctor_id,
             patient_id=appointment.patient_id,

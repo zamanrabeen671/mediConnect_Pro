@@ -35,8 +35,9 @@ class BloodGroupOut(BaseModel):
     id: int
     group_name: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class DoctorCreate(BaseModel):
@@ -82,45 +83,54 @@ class PatientOut(BaseModel):
 
     blood_group: BloodGroupOut   # nested response
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True 
+    }
 
 
-# =========================
-# SCHEDULE
-# =========================
+
 class ScheduleCreate(BaseModel):
-    doctor_id: int
     day_of_week: str
     start_time: time
     end_time: time
     max_patients: int
+    duration_per_appointment: Optional[int] = 30
 
-
+class ScheduleCreateInternal(ScheduleCreate):
+    doctor_id: int
+    
 class ScheduleOut(ScheduleCreate):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True 
+    }
 
 
-# =========================
-# APPOINTMENT
-# =========================
+
 class AppointmentCreate(BaseModel):
     doctor_id: int
     patient_id: int
-    schedule_id: int
+    schedule_id: Optional[int] = None
     appointment_date: date
 
 
-class AppointmentOut(AppointmentCreate):
+class AppointmentOut(BaseModel):
     id: int
+    doctor_id: int
+    patient_id: int
+    schedule_id: Optional[int]  # nullable
+    appointment_date: date
     status: str
 
-    class Config:
-        orm_mode = True
-
+    model_config = {
+        "from_attributes": True  # <--- this is required for from_orm()
+    }
+class AppointmentWithPatientCreate(BaseModel):
+    patient: PatientCreate
+    doctor_id: int
+    schedule_id: Optional[int] = None
+    appointment_date: date
 
 # =========================
 # PRESCRIPTION

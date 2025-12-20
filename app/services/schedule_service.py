@@ -3,7 +3,7 @@ Schedule service - Business logic for doctor schedule operations
 """
 from sqlalchemy.orm import Session
 from ..models import DoctorSchedule
-from ..schemas import ScheduleCreate, ScheduleOut
+from ..schemas import  ScheduleOut, ScheduleCreateInternal
 from ..repositories.schedule_repo import ScheduleRepository
 
 
@@ -11,8 +11,10 @@ class ScheduleService:
     """Service for schedule-related business logic"""
     
     @staticmethod
-    def create_schedule(db: Session, schedule: ScheduleCreate) -> ScheduleOut:
-        """Create a new schedule"""
+    def create_schedule(
+        db: Session,
+        schedule: ScheduleCreateInternal
+    ) -> ScheduleOut:
         new_schedule = ScheduleRepository.create_schedule(db, schedule)
         return ScheduleOut.from_orm(new_schedule)
     
@@ -28,7 +30,12 @@ class ScheduleService:
     def get_doctor_schedules(db: Session, doctor_id: int):
         """Get all schedules for a doctor"""
         return ScheduleRepository.get_schedules_by_doctor(db, doctor_id)
-    
+    @staticmethod
+    def get_doctor_schedules_id(db: Session, doctor_id: int):
+        first_schedule = ScheduleRepository.get_schedules_by_doctor(db, doctor_id).first()
+        if not first_schedule:
+            return None
+        return first_schedule.id
     @staticmethod
     def list_schedules(db: Session, skip: int = 0, limit: int = 100):
         """List all schedules"""

@@ -5,10 +5,10 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..schemas import AppointmentCreate, AppointmentOut
+from ..schemas import AppointmentCreate, AppointmentOut, AppointmentWithPatientCreate
 from ..services.appointment_service import AppointmentService
 
-router = APIRouter(prefix="/appointments", tags=["Appointments"])
+router = APIRouter(prefix="/api/v1/appointments", tags=["Appointments"])
 
 
 @router.post("/", response_model=AppointmentOut, status_code=status.HTTP_201_CREATED)
@@ -16,7 +16,7 @@ def create_appointment(
     appointment: AppointmentCreate,
     db: Session = Depends(get_db)
 ):
-    """Create a new appointment"""
+    
     return AppointmentService.create_appointment(db, appointment)
 
 
@@ -25,7 +25,13 @@ def get_appointment(appointment_id: int, db: Session = Depends(get_db)):
     """Get appointment by ID"""
     return AppointmentService.get_appointment(db, appointment_id)
 
-
+@router.post("/appointmentByPatient", response_model=AppointmentOut, status_code=status.HTTP_201_CREATED)
+def create_appointment_with_patient(
+    data: AppointmentWithPatientCreate,
+    db: Session = Depends(get_db)
+):
+    """Create patient (if new) and appointment in one API call"""
+    return AppointmentService.create_appointment_with_patient(db, data)
 @router.get("/patient/{patient_id}", response_model=list[AppointmentOut])
 def get_patient_appointments(patient_id: int, db: Session = Depends(get_db)):
     """Get all appointments for a patient"""

@@ -3,10 +3,14 @@ from typing import Optional
 from jose import jwt, JWTError
 from fastapi import HTTPException, Depends, status
 from sqlalchemy.orm import Session
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from .config import settings
 from ..database import get_db
 from ..models import User
+
+
+security = HTTPBearer()
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -42,9 +46,11 @@ def verify_token(token: str) -> dict:
 
 
 def get_current_user(
-    token: str = Depends(lambda: ""),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
+    token = credentials.credentials  # This is your Bearer token
+    
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
