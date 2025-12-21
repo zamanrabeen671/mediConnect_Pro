@@ -9,18 +9,26 @@ from ..schemas import DoctorCreate
 class DoctorRepository:
     
     @staticmethod
-    def create_doctor(db: Session, doctor: DoctorCreate, user_id: int) -> Doctor:
-        doctor_data = doctor.model_dump(exclude_unset=True)
-
+    def create_doctor(db: Session, doctor: DoctorCreate, user_id: int):
         db_doctor = Doctor(
             id=user_id,
-            **doctor_data
+            full_name=doctor.full_name,
+            specialization=doctor.specialization,
+            phone=doctor.phone,
+            chamber=doctor.chamber,
+            institute=doctor.institute,
+            bmdc_number=doctor.bmdcNumber,
+            experience=doctor.experience,
+            qualifications=doctor.qualifications,
+            consultation_fee=doctor.consultationFee,
+            status="pending",
         )
 
         db.add(db_doctor)
         db.commit()
         db.refresh(db_doctor)
         return db_doctor
+
 
     
     @staticmethod

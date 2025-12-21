@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import time, date
 from typing import Optional
 
@@ -52,15 +52,22 @@ class DoctorCreate(BaseModel):
     consultationFee: str
 
 
-class DoctorOut(DoctorCreate):
+class DoctorOut(BaseModel):
     id: int
+    full_name: str
+    specialization: str
+    phone: str
+    chamber: str
+    institute: str
+    bmdcNumber: str = Field(..., alias="bmdc_number")
+    experience: str
+    qualifications: str
+    consultationFee: str = Field(..., alias="consultation_fee")
     status: str
 
     model_config = {
         "from_attributes": True
     }
-
-
 # =========================
 # PATIENT
 # =========================
@@ -119,12 +126,12 @@ class AppointmentOut(BaseModel):
     id: int
     doctor_id: int
     patient_id: int
-    schedule_id: Optional[int]  # nullable
+    schedule_id: Optional[int]
     appointment_date: date
     status: str
 
     model_config = {
-        "from_attributes": True  # <--- this is required for from_orm()
+        "from_attributes": True  
     }
 class AppointmentWithPatientCreate(BaseModel):
     patient: PatientCreate

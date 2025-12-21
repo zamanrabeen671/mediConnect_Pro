@@ -139,4 +139,58 @@ class Prescription(Base):
     document_path = Column(String(255))
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
-    appointment = relationship("Appointment", back_populates="prescription")
+    appointment = relationship(
+        "Appointment",
+        back_populates="prescription"
+    )
+
+    medicines = relationship(
+        "PrescriptionMedicine",
+        back_populates="prescription",
+        cascade="all, delete"
+    )
+
+
+class Medicine(Base):
+    __tablename__ = "medicines"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(150), nullable=False)
+    strength = Column(String(50))        
+    form = Column(String(50))            
+    manufacturer = Column(String(150))
+
+    prescription_medicines = relationship(
+        "PrescriptionMedicine",
+        back_populates="medicine",
+        cascade="all, delete"
+    )
+    
+class PrescriptionMedicine(Base):
+    __tablename__ = "prescription_medicines"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    prescription_id = Column(
+        Integer,
+        ForeignKey("prescriptions.id"),
+        nullable=False
+    )
+    medicine_id = Column(
+        Integer,
+        ForeignKey("medicines.id"),
+        nullable=False
+    )
+
+    dosage = Column(String(50))           # 1+0+1
+    duration = Column(String(50))         # 7 days
+    instruction = Column(String(255))     # after meal, before meal
+
+    prescription = relationship(
+        "Prescription",
+        back_populates="medicines"
+    )
+    medicine = relationship(
+        "Medicine",
+        back_populates="prescription_medicines"
+    )

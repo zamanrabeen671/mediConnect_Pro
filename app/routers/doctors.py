@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Request
 from sqlalchemy.orm import Session
 
 from app.models import Doctor
@@ -14,10 +14,12 @@ router = APIRouter(prefix="/api/v1/doctors", tags=["Doctors"])
 @router.post("/", response_model=DoctorOut, status_code=status.HTTP_201_CREATED)
 def create_doctor(
     doctor: DoctorCreate,
+    request: Request,
     db: Session = Depends(get_db)
 ):
-   
-    return DoctorService.create_doctor(db, doctor, user_id=1)
+    user_id = request.state.user_id
+
+    return DoctorService.create_doctor(db, doctor, user_id=user_id)
 
 
 @router.get("/{doctor_id}", response_model=DoctorOut)

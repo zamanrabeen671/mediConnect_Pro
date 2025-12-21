@@ -9,14 +9,15 @@ class DoctorService:
     @staticmethod
     def create_doctor(db: Session, doctor: DoctorCreate, user_id: int) -> DoctorOut:
         new_doctor = DoctorRepository.create_doctor(db, doctor, user_id)
-        return new_doctor
+        return new_doctor                       
     
     @staticmethod
     def get_doctor(db: Session, doctor_id: int) -> DoctorOut:
         """Get doctor by ID"""
         doctor = DoctorRepository.get_doctor_by_id(db, doctor_id)
         if not doctor:
-            raise Exception("Doctor not found")
+            # raise Exception("Doctor not found")
+            return None
         return doctor
     
     @staticmethod

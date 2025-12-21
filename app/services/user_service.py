@@ -31,13 +31,13 @@ class UserService:
         if not user or not verify_password(password, user.password):
             raise InvalidCredentialsException()
         
-        # Create access token
         token = create_access_token({"id": user.id, "role": user.role})
+        
         if user.role == "doctor":
             from .doctor_service import DoctorService
             doctor = DoctorService.get_doctor(db, user.id)
-            user.status = doctor.status
-        print("User authenticated:", user)
+            user.status = doctor.status if doctor else None
+
         return {
             "token": token,
             "user": UserOut.from_orm(user)

@@ -14,8 +14,8 @@ router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
 
 @router.get("/me", response_model=UserOut)
-def get_current_user_info(current_user: User = Depends(get_current_user)):
-    return current_user
+def get_current_user_info(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return UserService.get_user(db, current_user.id)
 
 
 @router.get("/{user_id}", response_model=UserOut)
