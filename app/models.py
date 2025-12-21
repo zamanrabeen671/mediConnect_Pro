@@ -14,9 +14,7 @@ from datetime import datetime
 from app.database import Base
 
 
-# =========================
-# User
-# =========================
+
 class User(Base):
     __tablename__ = "users"
 
@@ -30,9 +28,7 @@ class User(Base):
     patient = relationship("Patient", back_populates="user", uselist=False)
 
 
-# =========================
-# Blood Group
-# =========================
+
 class BloodGroup(Base):
     __tablename__ = "blood_groups"
 
@@ -42,9 +38,7 @@ class BloodGroup(Base):
     patients = relationship("Patient", back_populates="blood_group")
 
 
-# =========================
-# Doctor
-# =========================
+
 class Doctor(Base):
     __tablename__ = "doctors"
 
@@ -104,9 +98,6 @@ class DoctorSchedule(Base):
     appointments = relationship("Appointment", back_populates="schedule")
 
 
-# =========================
-# Appointment
-# =========================
 class Appointment(Base):
     __tablename__ = "appointments"
 
@@ -116,6 +107,7 @@ class Appointment(Base):
     schedule_id = Column(Integer, ForeignKey("doctor_schedules.id"), nullable=True)
 
     appointment_date = Column(Date)
+    appointment_time = Column(Time, nullable=True)
     status = Column(String(20), default="pending")
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
@@ -130,9 +122,7 @@ class Appointment(Base):
     )
 
 
-# =========================
-# Prescription
-# =========================
+
 class Prescription(Base):
     __tablename__ = "prescriptions"
 

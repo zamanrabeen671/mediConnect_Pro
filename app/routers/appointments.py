@@ -1,7 +1,7 @@
 """
 Appointment routes
 """
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Request
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -39,9 +39,10 @@ def get_patient_appointments(patient_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/doctor/{doctor_id}", response_model=list[AppointmentOut])
-def get_doctor_appointments(doctor_id: int, db: Session = Depends(get_db)):
-    """Get all appointments for a doctor"""
-    return AppointmentService.get_doctor_appointments(db, doctor_id)
+def get_doctor_appointments(  request: Request,doctor_id: int, db: Session = Depends(get_db)):
+    user_id = getattr(request.state, "user_id", None)
+   
+    return AppointmentService.get_doctor_appointments(db, user_id)
 
 
 @router.get("/", response_model=list[AppointmentOut])

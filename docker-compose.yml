@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: mediconnect_pro
+      MYSQL_DATABASE: medi_connect_pro
     ports:
       - "3307:3306"
     volumes:
@@ -19,7 +19,7 @@ services:
     depends_on:
       - mysql
     environment:
-      DATABASE_URL: mysql+pymysql://root:root@mysql:3306/mediconnect_pro
+      DATABASE_URL: mysql+pymysql://root:root@mysql:3306/medi_connect_pro
     ports:
       - "8000:8000"
 
