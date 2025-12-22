@@ -1,8 +1,8 @@
 """
 Appointment repository - Database access layer for Appointment model
 """
-from sqlalchemy.orm import Session
-from ..models import Appointment
+from sqlalchemy.orm import Session, joinedload
+from ..models import Appointment, Patient
 from ..schemas import AppointmentCreate
 
 
@@ -30,13 +30,28 @@ class AppointmentRepository:
     @staticmethod
     def get_appointments_by_patient(db: Session, patient_id: int):
         """Get all appointments for a patient"""
-        return db.query(Appointment).filter(Appointment.patient_id == patient_id).all()
+        return db.query(Appointment).options(joinedload(Appointment.patient)).filter(Appointment.patient_id == patient_id).all()
     
     @staticmethod
     def get_appointments_by_doctor(db: Session, doctor_id: int):
         """Get all appointments for a doctor"""
-        return db.query(Appointment).filter(Appointment.doctor_id == doctor_id).all()
+        return (
+        db.query(Appointment)
+        .options(joinedload(Appointment.patient))  # load patient relationship
+        .filter(Appointment.doctor_id == doctor_id)
+        .all()
+    )
+    @staticmethod
+    def get_patients_by_doctor(db: Session, doctor_id: int):
     
+        patients = (
+            db.query(Patient)
+            .join(Appointment, Appointment.patient_id == Patient.id)
+            .filter(Appointment.doctor_id == doctor_id)
+            .distinct()
+            .all()
+        )
+        return patients
     @staticmethod
     def get_all_appointments(db: Session, skip: int = 0, limit: int = 100):
         """Get all appointments with pagination"""

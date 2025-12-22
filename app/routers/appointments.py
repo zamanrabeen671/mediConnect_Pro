@@ -1,11 +1,12 @@
 """
 Appointment routes
 """
+from webbrowser import get
 from fastapi import APIRouter, Depends, status, Request
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..schemas import AppointmentCreate, AppointmentOut, AppointmentWithPatientCreate
+from ..schemas import AppointmentCreate, AppointmentOut, AppointmentWithPatientCreate, AppointmentDoctorOut, PatientOut
 from ..services.appointment_service import AppointmentService
 
 router = APIRouter(prefix="/api/v1/appointments", tags=["Appointments"])
@@ -38,7 +39,7 @@ def get_patient_appointments(patient_id: int, db: Session = Depends(get_db)):
     return AppointmentService.get_patient_appointments(db, patient_id)
 
 
-@router.get("/doctor/{doctor_id}", response_model=list[AppointmentOut])
+@router.get("/doctor/{doctor_id}", response_model=list[AppointmentDoctorOut])
 def get_doctor_appointments(  request: Request,doctor_id: int, db: Session = Depends(get_db)):
     user_id = getattr(request.state, "user_id", None)
    
@@ -54,6 +55,10 @@ def list_appointments(
     """List all appointments"""
     return AppointmentService.list_appointments(db, skip, limit)
 
+@router.get("/patients/doctor/{doctor_id}", response_model=list[PatientOut])
+def get_patients_by_doctor(doctor_id: int, db: Session = Depends(get_db)):
+    
+    return AppointmentService.get_patients_by_doctor(db, doctor_id)
 
 @router.put("/{appointment_id}", response_model=AppointmentOut)
 def update_appointment(

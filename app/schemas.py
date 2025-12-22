@@ -88,7 +88,7 @@ class PatientOut(BaseModel):
     phone: str
     address: str
 
-    blood_group: BloodGroupOut   # nested response
+    blood_group: Optional[BloodGroupOut] = None   # nested response
 
     model_config = {
         "from_attributes": True 
@@ -128,10 +128,24 @@ class AppointmentOut(BaseModel):
     patient_id: int
     schedule_id: Optional[int]
     appointment_date: date
+    appointment_time: time
     status: str
 
     model_config = {
         "from_attributes": True  
+    }
+
+class AppointmentDoctorOut(BaseModel):
+    id: int
+    doctor_id: int
+    patient: PatientOut  # nested patient schema
+    schedule_id: Optional[int]
+    appointment_date: date
+    appointment_time: Optional[time]
+    status: str
+
+    model_config = {
+        "from_attributes": True
     }
 class AppointmentWithPatientCreate(BaseModel):
     patient: PatientCreate

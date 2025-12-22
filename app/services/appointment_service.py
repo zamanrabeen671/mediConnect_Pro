@@ -25,7 +25,7 @@ class AppointmentService:
         serial_number = generate_8digit_id()
         temp_email = f"patient_{uuid.uuid4().hex[:8]}@example.com"
         new_user = User(
-        email=temp_email,
+        email='',
         role="patient",
         
         # no password
@@ -88,7 +88,10 @@ class AppointmentService:
         if not appointment:
             raise Exception("Appointment not found")
         return AppointmentOut.from_orm(appointment)
-    
+    @staticmethod
+    def get_patients_by_doctor(db: Session, doctor_id: int):
+        """Get all patients for a doctor"""
+        return AppointmentRepository.get_patients_by_doctor(db, doctor_id)
     @staticmethod
     def delete_appointment(db: Session, appointment_id: int) -> bool:
         """Delete appointment"""

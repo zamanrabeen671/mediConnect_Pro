@@ -9,7 +9,7 @@ from ..schemas import PatientCreate, PatientOut
 from ..services.patient_service import PatientService
 from ..core.security import get_current_patient
 
-router = APIRouter(prefix="/patients", tags=["Patients"])
+router = APIRouter(prefix="/api/v1/patients", tags=["Patients"])
 
 
 @router.post("/", response_model=PatientOut, status_code=status.HTTP_201_CREATED)
