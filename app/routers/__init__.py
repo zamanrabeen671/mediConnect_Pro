@@ -9,6 +9,7 @@ from .schedules import router as schedules_router
 from .appointments import router as appointments_router
 from .prescriptions import router as prescriptions_router
 from .blood_group import router as blood_group_router
+from .medicines import router as medicines_router
 __all__ = [
     "auth_router",
     "users_router",
@@ -18,4 +19,5 @@ __all__ = [
     "appointments_router",
     "prescriptions_router",
     "blood_group_router",
+    "medicines_router",
 ]
