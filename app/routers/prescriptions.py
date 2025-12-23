@@ -19,7 +19,7 @@ def create_prescription(
     current_doctor = Depends(get_current_doctor)
 ):
     """Create a new prescription"""
-    return PrescriptionService.create_prescription(db, prescription)
+    return PrescriptionService.create_prescription(db, prescription, current_doctor)
 
 
 @router.get("/{prescription_id}", response_model=PrescriptionOut)

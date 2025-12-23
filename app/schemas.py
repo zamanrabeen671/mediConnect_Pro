@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
 from datetime import time, date
 from typing import Optional
@@ -160,11 +162,54 @@ class PrescriptionCreate(BaseModel):
     appointment_id: int
     patient_id: int
     notes: str
+    medicines: Optional[list["PrescriptionMedicineCreate"]] = None
+
+
+class MedicineCreate(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
+    strength: Optional[str] = None
+    form: Optional[str] = None
+    manufacturer: Optional[str] = None
+
+
+class MedicineOut(BaseModel):
+    id: int
+    name: str
+    strength: Optional[str] = None
+    form: Optional[str] = None
+    manufacturer: Optional[str] = None
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class PrescriptionMedicineCreate(BaseModel):
+    medicine_id: Optional[int] = None
+    medicine: Optional[MedicineCreate] = None
+    dosage: Optional[str] = None
+    duration: Optional[str] = None
+    instruction: Optional[str] = None
+
+
+class PrescriptionMedicineOut(BaseModel):
+    id: int
+    medicine: MedicineOut
+    dosage: Optional[str] = None
+    duration: Optional[str] = None
+    instruction: Optional[str] = None
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class PrescriptionOut(PrescriptionCreate):
     id: int
     document_path: Optional[str] = None
+    medicines: Optional[list[PrescriptionMedicineOut]] = None
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }

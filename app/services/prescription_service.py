@@ -5,14 +5,25 @@ from sqlalchemy.orm import Session
 from ..models import Prescription
 from ..schemas import PrescriptionCreate, PrescriptionOut
 from ..repositories.prescription_repo import PrescriptionRepository
+from ..repositories.appointment_repo import AppointmentRepository
+from ..exceptions.http_exceptions import ResourceNotFoundException, PermissionDeniedException
 
 
 class PrescriptionService:
     """Service for prescription-related business logic"""
     
     @staticmethod
-    def create_prescription(db: Session, prescription: PrescriptionCreate) -> PrescriptionOut:
-        """Create a new prescription"""
+    def create_prescription(db: Session, prescription: PrescriptionCreate, current_doctor=None) -> PrescriptionOut:
+        """Create a new prescription, ensuring the appointment belongs to current doctor"""
+        # validate appointment exists
+        appointment = AppointmentRepository.get_appointment_by_id(db, prescription.appointment_id)
+        if not appointment:
+            raise ResourceNotFoundException("Appointment not found")
+
+        # ensure the current doctor is owner of the appointment
+        if current_doctor and appointment.doctor_id != current_doctor.id:
+            raise PermissionDeniedException("You are not allowed to create a prescription for this appointment")
+
         new_prescription = PrescriptionRepository.create_prescription(db, prescription)
         return PrescriptionOut.from_orm(new_prescription)
     
