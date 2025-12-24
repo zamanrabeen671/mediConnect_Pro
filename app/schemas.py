@@ -122,6 +122,7 @@ class AppointmentCreate(BaseModel):
     patient_id: int
     schedule_id: Optional[int] = None
     appointment_date: date
+    appointment_time: time
 
 
 class AppointmentOut(BaseModel):
