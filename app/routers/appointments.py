@@ -35,7 +35,6 @@ def create_appointment_with_patient(
     return AppointmentService.create_appointment_with_patient(db, data)
 @router.get("/patient/{patient_id}", response_model=list[AppointmentOut])
 def get_patient_appointments(patient_id: int, db: Session = Depends(get_db)):
-    """Get all appointments for a patient"""
     return AppointmentService.get_patient_appointments(db, patient_id)
 
 

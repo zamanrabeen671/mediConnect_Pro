@@ -9,7 +9,7 @@ from ..schemas import PrescriptionCreate, PrescriptionOut
 from ..services.prescription_service import PrescriptionService
 from ..core.security import get_current_doctor
 
-router = APIRouter(prefix="/prescriptions", tags=["Prescriptions"])
+router = APIRouter(prefix="/api/v1/prescriptions", tags=["Prescriptions"])
 
 
 @router.post("/", response_model=PrescriptionOut, status_code=status.HTTP_201_CREATED)
