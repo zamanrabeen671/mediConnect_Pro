@@ -20,6 +20,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(100), unique=True, nullable=True)
+    phone = Column(String(20), unique=True, nullable=True)
     password = Column(String(255), nullable=True)
     role = Column(String(20), nullable=False)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)

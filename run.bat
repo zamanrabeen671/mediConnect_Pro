@@ -20,6 +20,7 @@ if not exist ".env" (
     copy .env.example .env
     echo Please edit .env with your database credentials
 )
+alembic upgrade head
 
 REM Start the server
 echo Starting MediConnectPro API...
