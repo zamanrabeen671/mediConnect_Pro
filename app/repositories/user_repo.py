@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from ..models import User
+from ..models import Patient, User
 from ..schemas import UserCreate
 
 
@@ -30,7 +30,27 @@ class UserRepository:
     @staticmethod
     def get_all_users(db: Session, skip: int = 0, limit: int = 100):
         return db.query(User).offset(skip).limit(limit).all()
+    @staticmethod
+    def get_by_phone_or_email(db: Session, value: str):
+
+        return db.query(User).filter(
+            (User.phone == value) | (User.email == value)
+        ).first()
     
+    @staticmethod
+    def create_patient_user(db: Session, phone: str, full_name: str):
+        user = User(phone=phone, role="patient", password=None)
+        db.add(user)
+        db.flush()  # to get user.id
+        patient = Patient(id=user.id, full_name=full_name, phone=phone)
+        db.add(patient)
+        db.commit()
+        return user
+
+    @staticmethod
+    def set_password(db: Session, user: User, password: str):
+        user.password = password  # optionally hash
+        db.commit()
     @staticmethod
     def update_user(db: Session, user_id: int, update_data: dict) -> User:
         user = db.query(User).filter(User.id == user_id).first()

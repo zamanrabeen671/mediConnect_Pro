@@ -1,3 +1,4 @@
+from http.client import HTTPException
 from sqlalchemy.orm import Session
 from ..models import User
 from ..schemas import UserCreate, UserOut
@@ -8,6 +9,7 @@ from ..exceptions.http_exceptions import (
     InvalidCredentialsException
 )
 from ..core.security import create_access_token
+from firebase_admin import auth as firebase_auth
 
 
 class UserService:
@@ -64,3 +66,28 @@ class UserService:
     def delete_user(db: Session, user_id: int) -> bool:
         """Delete user"""
         return UserRepository.delete_user(db, user_id)
+    
+    @staticmethod
+    def verify_firebase_token(db: Session, id_token: str):
+        try:
+            decoded = firebase_auth.verify_id_token(id_token)
+            uid = decoded["uid"]
+            phone = decoded.get("phone_number")
+            return phone
+        except Exception:
+            raise HTTPException(401, "Invalid Firebase token")
+        
+    @staticmethod
+    def login_or_create_patient(db: Session, firebase_token: str, full_name: str = None):
+        phone = UserService.verify_firebase_token(db, firebase_token)
+        user_repo = UserRepository(db)
+
+        user = user_repo.get_by_phone_or_email(phone)
+        if user:
+            # existing patient, return user
+            return user
+        else:
+            if not full_name:
+                raise HTTPException(400, "Full name required for new patient")
+            # create patient if not exists
+            return user_repo.create_patient_user(phone, full_name)
