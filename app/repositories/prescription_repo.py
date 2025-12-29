@@ -90,8 +90,73 @@ class PrescriptionRepository:
         """Update prescription"""
         prescription = db.query(Prescription).filter(Prescription.id == prescription_id).first()
         if prescription:
+            medicines_payload = update_data.pop("medicines", None)
+
             for key, value in update_data.items():
                 setattr(prescription, key, value)
+
+            if medicines_payload is not None:
+                # Track existing prescription medicines so we can update/delete as needed
+                existing_items = {pm.id: pm for pm in prescription.medicines}
+
+                def _to_dict(payload):
+                    if payload is None:
+                        return {}
+                    if hasattr(payload, "dict"):
+                        return payload.dict(exclude_unset=True)
+                    return dict(payload)
+
+                for med_entry in medicines_payload or []:
+                    med_data = _to_dict(med_entry)
+                    if not med_data:
+                        continue
+
+                    pm_id = med_data.get("id")
+                    medicine_id = med_data.get("medicine_id")
+
+                    # Handle nested medicine creation/update payload
+                    nested_medicine = med_data.get("medicine")
+                    if not medicine_id and nested_medicine:
+                        nested_data = _to_dict(nested_medicine)
+                        if nested_data.get("id"):
+                            medicine_id = nested_data["id"]
+                        elif nested_data.get("name"):
+                            db_medicine = Medicine(
+                                name=nested_data.get("name"),
+                                strength=nested_data.get("strength"),
+                                form=nested_data.get("form"),
+                                manufacturer=nested_data.get("manufacturer")
+                            )
+                            db.add(db_medicine)
+                            db.flush()
+                            medicine_id = db_medicine.id
+
+                    if pm_id and pm_id in existing_items:
+                        pm_model = existing_items.pop(pm_id)
+                        if medicine_id:
+                            pm_model.medicine_id = medicine_id
+                        if "dosage" in med_data:
+                            pm_model.dosage = med_data.get("dosage")
+                        if "duration" in med_data:
+                            pm_model.duration = med_data.get("duration")
+                        if "instruction" in med_data:
+                            pm_model.instruction = med_data.get("instruction")
+                        continue
+
+                    if medicine_id:
+                        new_pm = PrescriptionMedicine(
+                            prescription_id=prescription.id,
+                            medicine_id=medicine_id,
+                            dosage=med_data.get("dosage"),
+                            duration=med_data.get("duration"),
+                            instruction=med_data.get("instruction")
+                        )
+                        db.add(new_pm)
+
+                # Delete any prescription medicines not present in updated payload
+                for orphan_pm in existing_items.values():
+                    db.delete(orphan_pm)
+
             db.commit()
             db.refresh(prescription)
         return prescription
