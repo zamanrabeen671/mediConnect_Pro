@@ -26,7 +26,7 @@ def get_appointment(appointment_id: int, db: Session = Depends(get_db)):
     """Get appointment by ID"""
     return AppointmentService.get_appointment(db, appointment_id)
 
-@router.post("/appointmentByPatient", response_model=AppointmentOut, status_code=status.HTTP_201_CREATED)
+@router.post("/appointmentByPatient", response_model=AppointmentDoctorOut, status_code=status.HTTP_201_CREATED)
 def create_appointment_with_patient(
     data: AppointmentWithPatientCreate,
     db: Session = Depends(get_db)

@@ -76,6 +76,7 @@ class DoctorOut(BaseModel):
 class PatientCreate(BaseModel):
     full_name: str
     age: int
+    email: Optional[str] = None
     gender: str
     phone: str
     blood_group_id: int    # FK instead of text
@@ -141,7 +142,7 @@ class AppointmentOut(BaseModel):
 class AppointmentDoctorOut(BaseModel):
     id: int
     doctor_id: int
-    patient: PatientOut  # nested patient schema
+    patient: PatientOut 
     schedule_id: Optional[int]
     appointment_date: date
     appointment_time: Optional[time]
@@ -155,7 +156,7 @@ class AppointmentWithPatientCreate(BaseModel):
     doctor_id: int
     schedule_id: Optional[int] = None
     appointment_date: date
-
+    appointment_time: Optional[time] = None
 # =========================
 # PRESCRIPTION
 # =========================

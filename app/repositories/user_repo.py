@@ -38,11 +38,11 @@ class UserRepository:
         ).first()
     
     @staticmethod
-    def create_patient_user(db: Session, phone: str, full_name: str):
+    def create_patient_user(db: Session, phone: str) -> User:
         user = User(phone=phone, role="patient", password=None)
         db.add(user)
         db.flush()  # to get user.id
-        patient = Patient(id=user.id, full_name=full_name, phone=phone)
+        patient = Patient(id=user.id, phone=phone)
         db.add(patient)
         db.commit()
         return user

@@ -2,12 +2,9 @@
 Appointment service - Business logic for appointment operations
 """
 from sqlalchemy.orm import Session
-from ..models import Appointment, Patient, User
-from ..schemas import AppointmentCreate, AppointmentOut, AppointmentWithPatientCreate
+from ..schemas import AppointmentCreate, AppointmentOut, AppointmentWithPatientCreate,AppointmentDoctorOut
 from ..repositories.appointment_repo import AppointmentRepository
-import random
-import uuid
-
+from ..utils import send_patient_welcome_email
 class AppointmentService:
     
     @staticmethod
@@ -16,47 +13,15 @@ class AppointmentService:
         return AppointmentOut.from_orm(new_appointment)
     
     @staticmethod
-    def create_appointment_with_patient(db: Session, data: AppointmentWithPatientCreate) -> AppointmentOut:
-        
+    def create_appointment_with_patient(db: Session, data: AppointmentWithPatientCreate) -> AppointmentDoctorOut:
+        appointment = AppointmentRepository.create_appointment_with_patient(db, data)
+        if hasattr(appointment, "_email"):
+            send_patient_welcome_email(
+                appointment._email,
+                appointment._temp_password
+            )
 
-        def generate_8digit_id():
-            return random.randint(10000000, 99999999)
-
-        serial_number = generate_8digit_id()
-        temp_email = f"patient_{uuid.uuid4().hex[:8]}@example.com"
-        new_user = User(
-        email='',
-        role="patient",
-        
-        # no password
-        )
-        db.add(new_user)
-        db.flush()
-        new_patient = Patient(
-            id=new_user.id,
-            full_name=data.patient.full_name,
-            age=data.patient.age,
-            gender=data.patient.gender,
-            phone=data.patient.phone,
-            blood_group_id=data.patient.blood_group_id,
-            address=data.patient.address,
-            serial_number=serial_number,
-        )
-        db.add(new_patient)
-        db.flush()  # flush to get new_patient.id without committing
-
-        # 2. Create appointment
-        new_appointment = Appointment(
-            doctor_id=data.doctor_id,
-            patient_id=new_patient.id,
-            schedule_id=data.schedule_id,
-            appointment_date=data.appointment_date
-        )
-        db.add(new_appointment)
-        db.commit()
-        db.refresh(new_appointment)
-
-        return AppointmentOut.from_orm(new_appointment)
+        return AppointmentDoctorOut.from_orm(appointment)
     
     @staticmethod
     def get_appointment(db: Session, appointment_id: int) -> AppointmentOut:

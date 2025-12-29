@@ -1,6 +1,4 @@
-"""
-User routes
-"""
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
@@ -44,21 +42,6 @@ def delete_user(
     UserService.delete_user(db, user_id)
     return None
 
-@router.post("/patient/signin", response_model=UserOut)
-def login_or_create_patient(
-    firebase_token: str,
-    full_name: str = None,
-    db: Session = Depends(get_db)
-):
-    return UserService.login_or_create_patient(db, firebase_token, full_name)   
-
-@router.post("/patient/verify", status_code=status.HTTP_200_OK)
-def verify_patient_phone(
-    phone: str,
-    db: Session = Depends(get_db),
-):
-    """Send verification code to patient's phone"""
-    UserService.verify_firebase_token(db,phone)
-    return {"message": "Verification code sent"}        
+     
 
 

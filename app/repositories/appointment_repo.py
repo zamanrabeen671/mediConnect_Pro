@@ -2,9 +2,11 @@
 Appointment repository - Database access layer for Appointment model
 """
 from sqlalchemy.orm import Session, joinedload
-from ..models import Appointment, Patient
-from ..schemas import AppointmentCreate
-
+from ..models import Appointment, Patient, User
+from ..schemas import AppointmentCreate, AppointmentWithPatientCreate
+import random
+import uuid
+from ..utils import hash_password, generate_temp_password
 
 class AppointmentRepository:
     """Repository for Appointment database operations"""
@@ -21,7 +23,69 @@ class AppointmentRepository:
         db.commit()
         db.refresh(db_appointment)
         return db_appointment
-    
+
+    @staticmethod
+    def create_appointment_with_patient(
+        db: Session,
+        data: AppointmentWithPatientCreate
+    ) -> Appointment:
+        
+
+
+        def generate_8digit_id():
+            return random.randint(10000000, 99999999)
+
+        serial_number = generate_8digit_id()
+        while db.query(Patient).filter(Patient.serial_number == serial_number).first():
+            serial_number = generate_8digit_id()
+
+        temp_password = generate_temp_password()
+        hashed_password = hash_password(temp_password)
+
+        # use provided email or fallback
+        email = data.patient.email
+
+        # 1️⃣ Create user
+        new_user = User(
+            email=email,
+            password=hashed_password,
+            role="patient",
+        )
+        db.add(new_user)
+        db.flush()
+
+        # 2️⃣ Create patient
+        new_patient = Patient(
+            id=new_user.id,
+            full_name=data.patient.full_name,
+            age=data.patient.age,
+            gender=data.patient.gender,
+            phone=data.patient.phone,
+            blood_group_id=data.patient.blood_group_id,
+            address=data.patient.address,
+            serial_number=serial_number,
+        )
+        db.add(new_patient)
+        db.flush()
+
+        # 3️⃣ Create appointment
+        new_appointment = Appointment(
+            doctor_id=data.doctor_id,
+            patient_id=new_patient.id,
+            schedule_id=data.schedule_id,
+            appointment_date=data.appointment_date,
+            appointment_time=data.appointment_time
+        )
+        db.add(new_appointment)
+
+        db.commit()
+        db.refresh(new_appointment)
+
+        # attach temp password for service layer usage (not stored)
+        new_appointment._temp_password = temp_password
+        new_appointment._email = email
+
+        return new_appointment
     @staticmethod
     def get_appointment_by_id(db: Session, appointment_id: int) -> Appointment:
         """Get appointment by ID"""
