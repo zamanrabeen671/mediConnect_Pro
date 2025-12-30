@@ -3,6 +3,7 @@ Patient service - Business logic for patient operations
 """
 from sqlalchemy.orm import Session
 from ..models import Patient
+from ..repositories.patient_repo import PatientRepository
 from ..schemas import PatientCreate, PatientOut
 from ..repositories.patient_repo import PatientRepository
 
@@ -41,3 +42,26 @@ class PatientService:
     def delete_patient(db: Session, patient_id: int) -> bool:
         """Delete patient"""
         return PatientRepository.delete_patient(db, patient_id)
+
+    @staticmethod
+    def get_dashboard_stats(db: Session, patient_id: int) -> dict:
+        """Return dashboard counts for a patient:
+        - upcoming appointments (appointment_date >= today)
+        - visited doctors (distinct doctors with past appointments)
+        - active prescriptions (count of prescriptions)
+        """
+        upcoming_appointments = PatientRepository.count_upcoming_appointments(db, patient_id)
+        visited_doctors = PatientRepository.count_visited_doctors(db, patient_id)
+        active_prescriptions = PatientRepository.count_active_prescriptions(db, patient_id)
+
+        return {
+            "upcoming_appointments": upcoming_appointments,
+            "visited_doctors": visited_doctors,
+            "active_prescriptions": active_prescriptions,
+        }
+
+    @staticmethod
+    def list_upcoming_appointments(db: Session, patient_id: int, limit: int = 10):
+        """Return list of upcoming appointments for a patient."""
+        appointments = PatientRepository.get_upcoming_appointments(db, patient_id, limit)
+        return appointments

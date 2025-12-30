@@ -139,6 +139,18 @@ class AppointmentOut(BaseModel):
         "from_attributes": True  
     }
 
+
+class UpcomingAppointmentOut(BaseModel):
+    id: int
+    appointment_date: date
+    appointment_time: Optional[time] = None
+    status: str
+    doctor: Optional[DoctorOut] = None
+
+    model_config = {
+        "from_attributes": True
+    }
+
 class AppointmentDoctorOut(BaseModel):
     id: int
     doctor_id: int

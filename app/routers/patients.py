@@ -1,6 +1,4 @@
-"""
-Patient routes
-"""
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
@@ -8,6 +6,7 @@ from ..database import get_db
 from ..schemas import PatientCreate, PatientOut
 from ..services.patient_service import PatientService
 from ..core.security import get_current_patient
+from ..schemas import UpcomingAppointmentOut
 
 router = APIRouter(prefix="/api/v1/patients", tags=["Patients"])
 
@@ -33,7 +32,7 @@ def list_patients(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    """List all patients"""
+    
     return PatientService.list_patients(db, skip, limit)
 
 
@@ -52,4 +51,30 @@ def delete_patient(patient_id: int, db: Session = Depends(get_db)):
     """Delete patient"""
     PatientService.delete_patient(db, patient_id)
     return None
+
+
+@router.get("/me/dashboard")
+def get_my_dashboard(
+    current_user = Depends(get_current_patient),
+    db: Session = Depends(get_db)
+):
+    
+    patient_id = getattr(current_user, "id", None)
+    if not patient_id:
+        return {"upcoming_appointments": 0, "visited_doctors": 0, "active_prescriptions": 0}
+    return PatientService.get_dashboard_stats(db, patient_id)
+
+
+@router.get("/me/appointments/upcoming", response_model=list[UpcomingAppointmentOut])
+def get_my_upcoming_appointments(
+    current_user = Depends(get_current_patient),
+    db: Session = Depends(get_db),
+    limit: int = 10,
+):
+    
+    patient_id = getattr(current_user, "id", None)
+    if not patient_id:
+        return []
+    appointments = PatientService.list_upcoming_appointments(db, patient_id, limit)
+    return appointments
 

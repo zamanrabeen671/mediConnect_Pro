@@ -30,48 +30,80 @@ class AppointmentRepository:
         data: AppointmentWithPatientCreate
     ) -> Appointment:
         
+        # 🔍 Step 1: Check if patient already exists (by phone or email)
+        existing_user = None
+        
+        if data.patient.phone:
+            existing_user = db.query(User).filter(
+                User.phone == data.patient.phone,
+                User.role == "patient"
+            ).first()
+        
+        if not existing_user and data.patient.email:
+            existing_user = db.query(User).filter(
+                User.email == data.patient.email,
+                User.role == "patient"
+            ).first()
+        
+        # 🔄 Step 2: Use existing patient or create new one
+        if existing_user:
+            # Patient already exists - just get their patient record
+            existing_patient = db.query(Patient).filter(
+                Patient.id == existing_user.id
+            ).first()
+            
+            if not existing_patient:
+                raise ValueError("User exists but patient record not found")
+            
+            patient_id = existing_patient.id
+            temp_password = None  # No new password needed
+            email = existing_user.email
+            
+        else:
+            # ✨ Create new patient (original logic)
+            def generate_8digit_id():
+                return random.randint(10000000, 99999999)
 
-
-        def generate_8digit_id():
-            return random.randint(10000000, 99999999)
-
-        serial_number = generate_8digit_id()
-        while db.query(Patient).filter(Patient.serial_number == serial_number).first():
             serial_number = generate_8digit_id()
+            while db.query(Patient).filter(
+                Patient.serial_number == serial_number
+            ).first():
+                serial_number = generate_8digit_id()
 
-        temp_password = generate_temp_password()
-        hashed_password = hash_password(temp_password)
+            temp_password = generate_temp_password()
+            hashed_password = hash_password(temp_password)
+            email = data.patient.email
 
-        # use provided email or fallback
-        email = data.patient.email
+            # Create user
+            new_user = User(
+                email=email,
+                phone=data.patient.phone,
+                password=hashed_password,
+                role="patient",
+            )
+            db.add(new_user)
+            db.flush()
 
-        # 1️⃣ Create user
-        new_user = User(
-            email=email,
-            password=hashed_password,
-            role="patient",
-        )
-        db.add(new_user)
-        db.flush()
+            # Create patient
+            new_patient = Patient(
+                id=new_user.id,
+                full_name=data.patient.full_name,
+                age=data.patient.age,
+                gender=data.patient.gender,
+                phone=data.patient.phone,
+                blood_group_id=data.patient.blood_group_id,
+                address=data.patient.address,
+                serial_number=serial_number,
+            )
+            db.add(new_patient)
+            db.flush()
+            
+            patient_id = new_patient.id
 
-        # 2️⃣ Create patient
-        new_patient = Patient(
-            id=new_user.id,
-            full_name=data.patient.full_name,
-            age=data.patient.age,
-            gender=data.patient.gender,
-            phone=data.patient.phone,
-            blood_group_id=data.patient.blood_group_id,
-            address=data.patient.address,
-            serial_number=serial_number,
-        )
-        db.add(new_patient)
-        db.flush()
-
-        # 3️⃣ Create appointment
+        # 3️⃣ Create appointment (works for both new and existing patients)
         new_appointment = Appointment(
             doctor_id=data.doctor_id,
-            patient_id=new_patient.id,
+            patient_id=patient_id,
             schedule_id=data.schedule_id,
             appointment_date=data.appointment_date,
             appointment_time=data.appointment_time
@@ -81,9 +113,10 @@ class AppointmentRepository:
         db.commit()
         db.refresh(new_appointment)
 
-        # attach temp password for service layer usage (not stored)
-        new_appointment._temp_password = temp_password
-        new_appointment._email = email
+        # Attach metadata only if new patient was created
+        if temp_password:
+            new_appointment._temp_password = temp_password
+            new_appointment._email = email
 
         return new_appointment
     @staticmethod
