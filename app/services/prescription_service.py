@@ -23,7 +23,11 @@ class PrescriptionService:
         # ensure the current doctor is owner of the appointment
         if current_doctor and appointment.doctor_id != current_doctor.id:
             raise PermissionDeniedException("You are not allowed to create a prescription for this appointment")
-
+        updateAppointment = AppointmentRepository.update_appointment(
+            db,
+            appointment.id,
+            {"status": "completed"}
+        )
         new_prescription = PrescriptionRepository.create_prescription(db, prescription)
         return PrescriptionOut.from_orm(new_prescription)
     

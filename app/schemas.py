@@ -132,7 +132,7 @@ class AppointmentOut(BaseModel):
     patient_id: int
     schedule_id: Optional[int]
     appointment_date: date
-    appointment_time: time
+    appointment_time: Optional[time] = None
     status: str
 
     model_config = {
