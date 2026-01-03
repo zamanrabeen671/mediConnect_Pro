@@ -126,7 +126,7 @@ class AppointmentRepository:
     
     @staticmethod
     def get_appointments_by_patient(db: Session, patient_id: int):
-        """Get all appointments for a patient"""
+        
         return db.query(Appointment).options(joinedload(Appointment.patient)).filter(Appointment.patient_id == patient_id).all()
     
     @staticmethod

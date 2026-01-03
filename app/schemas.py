@@ -140,6 +140,14 @@ class AppointmentOut(BaseModel):
     }
 
 
+class AppointmentWithDoctorOut(AppointmentOut):
+    doctor: Optional[DoctorOut] = None
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
 class UpcomingAppointmentOut(BaseModel):
     id: int
     appointment_date: date
@@ -224,6 +232,14 @@ class PrescriptionOut(PrescriptionCreate):
     document_path: Optional[str] = None
     medicines: Optional[list[PrescriptionMedicineOut]] = None
 
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class PrescriptionWithDoctorOut(PrescriptionOut):
+    # include appointment (which can include doctor) for richer response
+    appointment: Optional[AppointmentWithDoctorOut] = None
     model_config = {
         "from_attributes": True
     }

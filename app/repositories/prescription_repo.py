@@ -78,7 +78,19 @@ class PrescriptionRepository:
     @staticmethod
     def get_prescriptions_by_patient(db: Session, patient_id: int):
         """Get all prescriptions for a patient"""
-        return db.query(Prescription).filter(Prescription.patient_id == patient_id).all()
+        # eager-load medicines->medicine and appointment->doctor for a richer response
+        from sqlalchemy.orm import joinedload
+        from ..models import Appointment
+
+        return (
+            db.query(Prescription)
+            .options(
+                joinedload(Prescription.medicines).joinedload(PrescriptionMedicine.medicine),
+                joinedload(Prescription.appointment).joinedload(Appointment.doctor),
+            )
+            .filter(Prescription.patient_id == patient_id)
+            .all()
+        )
     
     @staticmethod
     def get_all_prescriptions(db: Session, skip: int = 0, limit: int = 100):

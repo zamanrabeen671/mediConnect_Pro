@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..schemas import PrescriptionCreate, PrescriptionOut
+from ..schemas import PrescriptionCreate, PrescriptionOut,PrescriptionWithDoctorOut
 from ..services.prescription_service import PrescriptionService
 from ..core.security import get_current_doctor
 
@@ -37,7 +37,7 @@ def get_prescription_by_appointment(
     return PrescriptionService.get_prescription_by_appointment(db, appointment_id)
 
 
-@router.get("/patient/{patient_id}", response_model=list[PrescriptionOut])
+@router.get("/patient/{patient_id}", response_model=list[PrescriptionWithDoctorOut])
 def get_patient_prescriptions(patient_id: int, db: Session = Depends(get_db)):
     """Get all prescriptions for a patient"""
     return PrescriptionService.get_patient_prescriptions(db, patient_id)

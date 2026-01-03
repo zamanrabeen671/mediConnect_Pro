@@ -9,7 +9,6 @@ from ..exceptions.http_exceptions import (
     InvalidCredentialsException
 )
 from ..core.security import create_access_token
-from firebase_admin import auth as firebase_auth
 
 
 class UserService:
