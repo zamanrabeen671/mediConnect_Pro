@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.models import Doctor
 
 from ..database import get_db
-from ..schemas import DoctorCreate, DoctorOut
+from ..schemas import DoctorCreate, DoctorOut, ScheduleOut, AppointmentDoctorOut, DashboardStats
 from ..services.doctor_service import DoctorService
 from ..core.security import get_current_doctor
 
@@ -58,6 +58,22 @@ def delete_doctor(doctor_id: int, db: Session = Depends(get_db)):
     DoctorService.delete_doctor(db, doctor_id)
     return None
 
-@router.get("/{doctor_id}", response_model=DoctorOut)
-def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
-    return db.query(Doctor).filter(Doctor.id == doctor_id).first()
+
+# Dashboard Endpoints
+@router.get("/{doctor_id}/dashboard/stats", response_model=DashboardStats)
+def get_dashboard_stats(doctor_id: int, db: Session = Depends(get_db)):
+    """Get dashboard statistics for a doctor (appointments, patients, reports)"""
+    return DoctorService.get_dashboard_stats(db, doctor_id)
+
+
+@router.get("/{doctor_id}/schedule", response_model=list[ScheduleOut])
+def get_doctor_schedule(doctor_id: int, db: Session = Depends(get_db)):
+    """Get doctor's schedule"""
+    return DoctorService.get_doctor_schedule(db, doctor_id)
+
+
+@router.get("/{doctor_id}/appointments/today", response_model=list[AppointmentDoctorOut])
+def get_today_appointments(doctor_id: int, db: Session = Depends(get_db)):
+    """Get all appointments for a doctor today"""
+    return DoctorService.get_today_appointments(db, doctor_id)
+

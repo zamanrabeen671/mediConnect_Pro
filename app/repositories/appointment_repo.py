@@ -7,6 +7,7 @@ from ..schemas import AppointmentCreate, AppointmentWithPatientCreate
 import random
 import uuid
 from ..utils import hash_password, generate_temp_password
+from datetime import date
 
 class AppointmentRepository:
     """Repository for Appointment database operations"""
@@ -174,3 +175,36 @@ class AppointmentRepository:
             db.commit()
             return True
         return False
+    
+    @staticmethod
+    def get_today_appointments_by_doctor(db: Session, doctor_id: int):
+        """Get all appointments for a doctor today"""
+        today = date.today()
+        return (
+            db.query(Appointment)
+            .options(joinedload(Appointment.patient))
+            .filter(
+                Appointment.doctor_id == doctor_id,
+                Appointment.appointment_date == today
+            )
+            .all()
+        )
+    
+    @staticmethod
+    def get_appointment_count_today(db: Session, doctor_id: int) -> int:
+        """Get count of appointments for a doctor today"""
+        today = date.today()
+        return db.query(Appointment).filter(
+            Appointment.doctor_id == doctor_id,
+            Appointment.appointment_date == today
+        ).count()
+    
+    @staticmethod
+    def get_pending_reports_count(db: Session, doctor_id: int) -> int:
+        """Get count of pending prescriptions/reports for a doctor"""
+        from ..models import Prescription
+        return db.query(Prescription).join(
+            Appointment, Appointment.id == Prescription.appointment_id
+        ).filter(
+            Appointment.doctor_id == doctor_id
+        ).count()

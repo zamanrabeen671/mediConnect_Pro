@@ -243,3 +243,17 @@ class PrescriptionWithDoctorOut(PrescriptionOut):
     model_config = {
         "from_attributes": True
     }
+
+
+# =========================
+# DOCTOR DASHBOARD
+# =========================
+class DashboardStats(BaseModel):
+    today_appointments: int
+    total_patients: int
+    pending_reports: int
+    
+    model_config = {
+        "from_attributes": True
+    }
+

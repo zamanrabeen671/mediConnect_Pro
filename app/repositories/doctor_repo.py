@@ -2,7 +2,7 @@
 Doctor repository - Database access layer for Doctor model
 """
 from sqlalchemy.orm import Session
-from ..models import Doctor
+from ..models import Doctor, Appointment, Patient
 from ..schemas import DoctorCreate
 
 
@@ -65,3 +65,13 @@ class DoctorRepository:
             db.commit()
             return True
         return False
+    
+    @staticmethod
+    def get_patient_count(db: Session, doctor_id: int) -> int:
+        """Get total number of unique patients for a doctor"""
+        return db.query(Patient).join(
+            Appointment, Appointment.patient_id == Patient.id
+        ).filter(
+            Appointment.doctor_id == doctor_id
+        ).distinct().count()
+
