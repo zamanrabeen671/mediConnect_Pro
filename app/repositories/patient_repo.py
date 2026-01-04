@@ -110,3 +110,11 @@ class PatientRepository:
             .limit(limit)
             .all()
         )
+
+    @staticmethod
+    def search_patients_by_phone(db: Session, phone: str):
+     
+        if not phone:
+            return []
+       
+        return db.query(Patient).filter(Patient.phone.contains(phone)).all()

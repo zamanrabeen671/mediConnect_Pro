@@ -20,6 +20,14 @@ def create_patient(
     return PatientService.create_patient(db, patient, user_id=1)
 
 
+@router.get("/search", response_model=list[PatientOut])
+def search_patients(
+    phone: str,
+    db: Session = Depends(get_db)
+):
+    return PatientService.search_by_phone(db, phone)
+
+
 @router.get("/{patient_id}", response_model=PatientOut)
 def get_patient(patient_id: int, db: Session = Depends(get_db)):
     """Get patient by ID"""
@@ -34,6 +42,14 @@ def list_patients(
 ):
     
     return PatientService.list_patients(db, skip, limit)
+
+
+@router.get("/search", response_model=list[PatientOut])
+def search_patients(
+    phone: str,
+    db: Session = Depends(get_db)
+):
+    return PatientService.search_by_phone(db, phone)
 
 
 @router.put("/{patient_id}", response_model=PatientOut)

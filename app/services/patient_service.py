@@ -65,3 +65,9 @@ class PatientService:
         """Return list of upcoming appointments for a patient."""
         appointments = PatientRepository.get_upcoming_appointments(db, patient_id, limit)
         return appointments
+
+    @staticmethod
+    def search_by_phone(db: Session, phone: str):
+        """Search patients by phone and return list of PatientOut."""
+        patients = PatientRepository.search_patients_by_phone(db, phone)
+        return [PatientOut.from_orm(p) for p in patients]
