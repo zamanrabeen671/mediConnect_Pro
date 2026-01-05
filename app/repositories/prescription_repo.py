@@ -2,7 +2,9 @@
 Prescription repository - Database access layer for Prescription model
 """
 from sqlalchemy.orm import joinedload, Session
-from ..models import Prescription, Medicine, PrescriptionMedicine
+from sqlalchemy import func
+from datetime import date
+from ..models import Prescription, Medicine, PrescriptionMedicine, Appointment
 from ..schemas import PrescriptionCreate, PrescriptionMedicineCreate, MedicineCreate
 
 
@@ -12,6 +14,23 @@ class PrescriptionRepository:
     @staticmethod
     def create_prescription(db: Session, prescription: PrescriptionCreate) -> Prescription:
         """Create a new prescription and associated prescription medicines"""
+        # check for existing prescription for same patient and same doctor on the same day
+        appointment = db.query(Appointment).filter(Appointment.id == prescription.appointment_id).first()
+        if appointment:
+            existing = (
+                db.query(Prescription)
+                .join(Appointment, Prescription.appointment)
+                .filter(
+                    Prescription.patient_id == prescription.patient_id,
+                    Appointment.doctor_id == appointment.doctor_id,
+                    func.date(Prescription.created_at) == date.today(),
+                )
+                .first()
+            )
+            if existing:
+                # update existing prescription instead of creating a new one
+                return PrescriptionRepository.update_prescription(db, existing.id, prescription.dict())
+
         db_prescription = Prescription(
             appointment_id=prescription.appointment_id,
             patient_id=prescription.patient_id,

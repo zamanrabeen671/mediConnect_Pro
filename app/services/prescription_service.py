@@ -14,13 +14,11 @@ class PrescriptionService:
     
     @staticmethod
     def create_prescription(db: Session, prescription: PrescriptionCreate, current_doctor=None) -> PrescriptionOut:
-        """Create a new prescription, ensuring the appointment belongs to current doctor"""
-        # validate appointment exists
+        
         appointment = AppointmentRepository.get_appointment_by_id(db, prescription.appointment_id)
         if not appointment:
             raise ResourceNotFoundException("Appointment not found")
 
-        # ensure the current doctor is owner of the appointment
         if current_doctor and appointment.doctor_id != current_doctor.id:
             raise PermissionDeniedException("You are not allowed to create a prescription for this appointment")
         updateAppointment = AppointmentRepository.update_appointment(
@@ -33,7 +31,7 @@ class PrescriptionService:
     
     @staticmethod
     def get_prescription(db: Session, prescription_id: int) -> PrescriptionOut:
-        """Get prescription by ID"""
+       
         prescription = PrescriptionRepository.get_prescription_by_id(db, prescription_id)
         if not prescription:
             raise Exception("Prescription not found")
