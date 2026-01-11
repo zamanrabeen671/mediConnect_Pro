@@ -42,30 +42,74 @@ class BloodGroupOut(BaseModel):
     }
 
 
+# =========================
+# SPECIALIZATION / INSTITUTE / QUALIFICATION
+# =========================
+class SpecializationCreate(BaseModel):
+    name: str
+
+
+class SpecializationOut(BaseModel):
+    id: int
+    name: str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class InstituteCreate(BaseModel):
+    name: str
+    address: Optional[str] = None
+
+
+class InstituteOut(BaseModel):
+    id: int
+    name: str
+    address: Optional[str] = None
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class QualificationCreate(BaseModel):
+    name: str
+
+
+class QualificationOut(BaseModel):
+    id: int
+    name: str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
 class DoctorCreate(BaseModel):
     full_name: str
-    specialization: str
     phone: str
-    chamber: str
-    institute: str
-    bmdcNumber: str
-    experience: str
-    qualifications: str
-    consultationFee: str
+    bmdc_number: Optional[str] = None
+    experience: Optional[str] = None
+    consultation_fee: Optional[str] = None
+    # Accept lists of ids for relationships (optional)
+    specialization_ids: Optional[list[int]] = None
+    institute_ids: Optional[list[int]] = None
+    qualification_ids: Optional[list[int]] = None
+    qualification_names: Optional[list[str]] = None
 
 
 class DoctorOut(BaseModel):
     id: int
     full_name: str
-    specialization: str
-    phone: str
-    chamber: str
-    institute: str
-    bmdcNumber: str = Field(..., alias="bmdc_number")
-    experience: str
-    qualifications: str
-    consultationFee: str = Field(..., alias="consultation_fee")
+    phone: Optional[str] = None
+    bmdc_number: Optional[str] = None
+    experience: Optional[str] = None
+    consultation_fee: Optional[str] = None
     status: str
+    specializations: Optional[list[SpecializationOut]] = None
+    institutes: Optional[list[InstituteOut]] = None
+    qualifications: Optional[list[QualificationOut]] = None
 
     model_config = {
         "from_attributes": True

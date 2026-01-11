@@ -11,6 +11,9 @@ from .prescriptions import router as prescriptions_router
 from .blood_group import router as blood_group_router
 from .medicines import router as medicines_router
 from .admin import router as admin_router
+from .specializations import router as specializations_router
+from .institutes import router as institutes_router
+from .qualifications import router as qualifications_router
 __all__ = [
     "auth_router",
     "users_router",
@@ -22,4 +25,7 @@ __all__ = [
     "blood_group_router",
     "medicines_router",
     "admin_router",
+    "specializations_router",
+    "institutes_router",
+    "qualifications_router",
 ]

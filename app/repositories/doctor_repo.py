@@ -2,7 +2,7 @@
 Doctor repository - Database access layer for Doctor model
 """
 from sqlalchemy.orm import Session
-from ..models import Doctor, Appointment, Patient
+from ..models import Doctor, Appointment, Patient, Specialization, Institute, Qualification
 from ..schemas import DoctorCreate
 
 
@@ -13,16 +13,43 @@ class DoctorRepository:
         db_doctor = Doctor(
             id=user_id,
             full_name=doctor.full_name,
-            specialization=doctor.specialization,
             phone=doctor.phone,
-            chamber=doctor.chamber,
-            institute=doctor.institute,
-            bmdc_number=doctor.bmdcNumber,
+            bmdc_number=doctor.bmdc_number,
             experience=doctor.experience,
-            qualifications=doctor.qualifications,
-            consultation_fee=doctor.consultationFee,
+            consultation_fee=doctor.consultation_fee,
             status="pending",
         )
+
+        # associate specializations / institutes / qualifications if provided
+        if doctor.specialization_ids:
+            specs = db.query(Specialization).filter(Specialization.id.in_(doctor.specialization_ids)).all()
+            for s in specs:
+                db_doctor.specializations.append(s)
+
+        if doctor.institute_ids:
+            insts = db.query(Institute).filter(Institute.id.in_(doctor.institute_ids)).all()
+            for i in insts:
+                db_doctor.institutes.append(i)
+
+        if doctor.qualification_ids:
+            quals = db.query(Qualification).filter(Qualification.id.in_(doctor.qualification_ids)).all()
+            for q in quals:
+                db_doctor.qualifications.append(q)
+
+        # accept qualification names and create missing ones
+        if getattr(doctor, "qualification_names", None):
+            for name in doctor.qualification_names:
+                name = name.strip()
+                if not name:
+                    continue
+                qobj = db.query(Qualification).filter(Qualification.name == name).first()
+                if not qobj:
+                    qobj = Qualification(name=name)
+                    db.add(qobj)
+                    db.commit()
+                    db.refresh(qobj)
+                if qobj not in db_doctor.qualifications:
+                    db_doctor.qualifications.append(qobj)
 
         db.add(db_doctor)
         db.commit()

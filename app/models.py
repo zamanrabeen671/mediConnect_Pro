@@ -1,3 +1,4 @@
+from enum import Enum
 from sqlalchemy import (
     Column,
     Integer,
@@ -6,7 +7,8 @@ from sqlalchemy import (
     ForeignKey,
     Time,
     Date,
-    Text
+    Text,
+    Table
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -20,46 +22,131 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(100), unique=True, nullable=True)
-    phone = Column(String(20), unique=True, nullable=True)
     password = Column(String(255), nullable=True)
-    role = Column(String(20), nullable=False)
+
+    role = Column(
+        Enum("doctor", "patient", "admin", name="user_roles"),
+        nullable=False
+    )
+
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     doctor = relationship("Doctor", back_populates="user", uselist=False)
     patient = relationship("Patient", back_populates="user", uselist=False)
 
 
-
 class BloodGroup(Base):
     __tablename__ = "blood_groups"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     group_name = Column(String(10), unique=True, nullable=False)
 
     patients = relationship("Patient", back_populates="blood_group")
 
+class Specialization(Base):
+    __tablename__ = "specializations"
 
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), unique=True, nullable=False)
+
+    doctors = relationship(
+        "Doctor",
+        secondary="doctor_specializations",
+        back_populates="specializations"
+    )
+class Institute(Base):
+    __tablename__ = "institutes"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(150), unique=True, nullable=False)
+    address = Column(String(255))
+
+    doctors = relationship(
+        "Doctor",
+        secondary="doctor_institutes",
+        back_populates="institutes"
+    )
+
+class Qualification(Base):
+    __tablename__ = "qualifications"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(150), unique=True, nullable=False)
+
+    doctors = relationship(
+        "Doctor",
+        secondary="doctor_qualifications",
+        back_populates="qualifications"
+    )
+
+doctor_specializations = Table(
+    "doctor_specializations",
+    Base.metadata,
+    Column("doctor_id", Integer, ForeignKey("doctors.id"), primary_key=True),
+    Column("specialization_id", Integer, ForeignKey("specializations.id"), primary_key=True),
+)
+
+doctor_institutes = Table(
+    "doctor_institutes",
+    Base.metadata,
+    Column("doctor_id", Integer, ForeignKey("doctors.id"), primary_key=True),
+    Column("institute_id", Integer, ForeignKey("institutes.id"), primary_key=True),
+)
+
+doctor_qualifications = Table(
+    "doctor_qualifications",
+    Base.metadata,
+    Column("doctor_id", Integer, ForeignKey("doctors.id"), primary_key=True),
+    Column("qualification_id", Integer, ForeignKey("qualifications.id"), primary_key=True),
+)
 
 class Doctor(Base):
     __tablename__ = "doctors"
 
     id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 
-    full_name = Column(String(120))
-    specialization = Column(String(120))
-    phone = Column(String(20))
-    chamber = Column(String(256))
-    institute = Column(String(256))
-    bmdc_number = Column(String(20))
+    full_name = Column(String(120), nullable=False)
+    phone = Column(String(20), unique=True, nullable=False)
+
+    bmdc_number = Column(String(20), unique=True)
     experience = Column(String(20))
-    qualifications = Column(Text)
     consultation_fee = Column(String(20))
-    status = Column(String(20), default="pending")
+
+    status = Column(
+        Enum("pending", "approved", "rejected", "blocked", name="doctor_status"),
+        default="pending"
+    )
 
     user = relationship("User", back_populates="doctor")
-    schedules = relationship("DoctorSchedule", back_populates="doctor", cascade="all, delete")
-    appointments = relationship("Appointment", back_populates="doctor")
 
+    specializations = relationship(
+        "Specialization",
+        secondary="doctor_specializations",
+        back_populates="doctors"
+    )
+
+    institutes = relationship(
+        "Institute",
+        secondary="doctor_institutes",
+        back_populates="doctors"
+    )
+
+    qualifications = relationship(
+        "Qualification",
+        secondary="doctor_qualifications",
+        back_populates="doctors"
+    )
+
+    schedules = relationship(
+        "DoctorSchedule",
+        back_populates="doctor",
+        cascade="all, delete"
+    )
+
+    appointments = relationship(
+        "Appointment",
+        back_populates="doctor"
+    )
 
 
 class Patient(Base):
@@ -109,7 +196,10 @@ class Appointment(Base):
 
     appointment_date = Column(Date)
     appointment_time = Column(Time, nullable=True)
-    status = Column(String(20), default="pending")
+    status = Column(
+        Enum("pending", "confirmed", "completed", "cancelled", name="appointment_status"),
+        default="pending"
+    )
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
 
     doctor = relationship("Doctor", back_populates="appointments")
