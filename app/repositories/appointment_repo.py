@@ -36,7 +36,6 @@ class AppointmentRepository:
         
         if data.patient.phone:
             existing_user = db.query(User).filter(
-                User.phone == data.patient.phone,
                 User.role == "patient"
             ).first()
         
@@ -75,10 +74,8 @@ class AppointmentRepository:
             hashed_password = hash_password(temp_password)
             email = data.patient.email
 
-            # Create user
             new_user = User(
                 email=email,
-                phone=data.patient.phone,
                 password=hashed_password,
                 role="patient",
             )

@@ -1,4 +1,3 @@
-from enum import Enum
 from sqlalchemy import (
     Column,
     Integer,
@@ -14,6 +13,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 
 from app.database import Base
+from sqlalchemy import Enum as SAEnum
 
 
 
@@ -25,7 +25,7 @@ class User(Base):
     password = Column(String(255), nullable=True)
 
     role = Column(
-        Enum("doctor", "patient", "admin", name="user_roles"),
+        SAEnum("doctor", "patient", "admin", name="user_roles"),
         nullable=False
     )
 
@@ -113,7 +113,7 @@ class Doctor(Base):
     consultation_fee = Column(String(20))
 
     status = Column(
-        Enum("pending", "approved", "rejected", "blocked", name="doctor_status"),
+        SAEnum("pending", "approved", "rejected", "blocked", name="doctor_status"),
         default="pending"
     )
 
@@ -197,7 +197,7 @@ class Appointment(Base):
     appointment_date = Column(Date)
     appointment_time = Column(Time, nullable=True)
     status = Column(
-        Enum("pending", "confirmed", "completed", "cancelled", name="appointment_status"),
+        SAEnum("pending", "confirmed", "completed", "cancelled", name="appointment_status"),
         default="pending"
     )
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
