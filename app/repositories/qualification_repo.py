@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from ..models import Qualification
 from ..schemas import QualificationCreate
@@ -13,7 +14,7 @@ class QualificationRepository:
         return new
 
     @staticmethod
-    def get_all(db: Session, search: str | None = None):
+    def get_all(db: Session, search: Optional[str] = None):
         q = db.query(Qualification)
         if search:
             q = q.filter(Qualification.name.ilike(f"%{search}%"))

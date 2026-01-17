@@ -107,7 +107,7 @@ class Doctor(Base):
 
     full_name = Column(String(120), nullable=False)
     phone = Column(String(20), unique=True, nullable=False)
-
+    chamber = Column(String(256))
     bmdc_number = Column(String(20), unique=True)
     experience = Column(String(20))
     consultation_fee = Column(String(20))

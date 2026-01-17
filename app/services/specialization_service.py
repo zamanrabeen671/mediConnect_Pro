@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from ..schemas import SpecializationCreate
 from ..repositories.specialization_repo import SpecializationRepository
@@ -9,7 +10,7 @@ class SpecializationService:
         return SpecializationRepository.create(db, specialization)
 
     @staticmethod
-    def list_specializations(db: Session, search: str | None = None):
+    def list_specializations(db: Session, search: Optional[str] = None):
         return SpecializationRepository.get_all(db, search)
 
     @staticmethod

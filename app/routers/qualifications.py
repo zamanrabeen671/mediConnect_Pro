@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
@@ -14,7 +15,7 @@ def create_qualification(qualification: QualificationCreate, db: Session = Depen
 
 
 @router.get("/", response_model=list[QualificationOut])
-def list_qualifications(search: str | None = None, db: Session = Depends(get_db)):
+def list_qualifications(search: Optional[str] = None, db: Session = Depends(get_db)):
     return QualificationService.list_qualifications(db, search)
 
 

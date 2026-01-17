@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
@@ -14,7 +15,7 @@ def create_institute(institute: InstituteCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[InstituteOut])
-def list_institutes(search: str | None = None, db: Session = Depends(get_db)):
+def list_institutes(search: Optional[str] = None, db: Session = Depends(get_db)):
     return InstituteService.list_institutes(db, search)
 
 

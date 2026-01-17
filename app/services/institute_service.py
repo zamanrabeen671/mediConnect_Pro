@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from ..schemas import InstituteCreate
 from ..repositories.institute_repo import InstituteRepository
@@ -9,7 +10,7 @@ class InstituteService:
         return InstituteRepository.create(db, institute)
 
     @staticmethod
-    def list_institutes(db: Session, search: str | None = None):
+    def list_institutes(db: Session, search: Optional[str] = None):
         return InstituteRepository.get_all(db, search)
 
     @staticmethod

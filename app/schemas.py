@@ -89,6 +89,7 @@ class QualificationOut(BaseModel):
 class DoctorCreate(BaseModel):
     full_name: str
     phone: str
+    chamber: Optional[str] = None
     bmdc_number: Optional[str] = None
     experience: Optional[str] = None
     consultation_fee: Optional[str] = None
@@ -103,6 +104,7 @@ class DoctorOut(BaseModel):
     id: int
     full_name: str
     phone: Optional[str] = None
+    chamber: Optional[str] = None
     bmdc_number: Optional[str] = None
     experience: Optional[str] = None
     consultation_fee: Optional[str] = None

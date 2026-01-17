@@ -28,6 +28,7 @@ CREATE TABLE `doctors` (
   `id` INT NOT NULL,
   `full_name` VARCHAR(120) NOT NULL,
   `phone` VARCHAR(20) NOT NULL UNIQUE,
+  `chamber` VARCHAR(256),
   `bmdc_number` VARCHAR(20) UNIQUE,
   `experience` VARCHAR(20),
   `consultation_fee` VARCHAR(20),

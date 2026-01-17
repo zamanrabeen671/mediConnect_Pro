@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
@@ -14,7 +15,7 @@ def create_specialization(specialization: SpecializationCreate, db: Session = De
 
 
 @router.get("/", response_model=list[SpecializationOut])
-def list_specializations(search: str | None = None, db: Session = Depends(get_db)):
+def list_specializations(search: Optional[str] = None, db: Session = Depends(get_db)):
     return SpecializationService.list_specializations(db, search)
 
 

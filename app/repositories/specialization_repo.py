@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from ..models import Specialization
 from ..schemas import SpecializationCreate
@@ -13,7 +14,7 @@ class SpecializationRepository:
         return new
 
     @staticmethod
-    def get_all(db: Session, search: str | None = None):
+    def get_all(db: Session, search: Optional[str] = None):
         q = db.query(Specialization)
         if search:
             q = q.filter(Specialization.name.ilike(f"%{search}%"))

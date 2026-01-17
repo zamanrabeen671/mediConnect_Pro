@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from ..schemas import QualificationCreate
 from ..repositories.qualification_repo import QualificationRepository
@@ -9,7 +10,7 @@ class QualificationService:
         return QualificationRepository.create(db, qualification)
 
     @staticmethod
-    def list_qualifications(db: Session, search: str | None = None):
+    def list_qualifications(db: Session, search: Optional[str] = None):
         return QualificationRepository.get_all(db, search)
 
     @staticmethod
