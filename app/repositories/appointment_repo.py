@@ -31,23 +31,30 @@ class AppointmentRepository:
         data: AppointmentWithPatientCreate
     ) -> Appointment:
         
-        # 🔍 Step 1: Check if patient already exists (by phone or email)
         existing_user = None
         
         if data.patient.phone:
-            existing_user = db.query(User).filter(
-                User.role == "patient"
-            ).first()
+            existing_user = (
+                db.query(User)
+                .join(Patient, Patient.id == User.id)
+                .filter(
+                    User.role == "patient",
+                    Patient.phone == data.patient.phone
+                )
+                .first()
+            )
         
         if not existing_user and data.patient.email:
-            existing_user = db.query(User).filter(
-                User.email == data.patient.email,
-                User.role == "patient"
-            ).first()
-        
-        # 🔄 Step 2: Use existing patient or create new one
+            existing_user = (
+                db.query(User)
+                .filter(
+                    User.email == data.patient.email,
+                    User.role == "patient"
+                )
+                .first()
+            )
+
         if existing_user:
-            # Patient already exists - just get their patient record
             existing_patient = db.query(Patient).filter(
                 Patient.id == existing_user.id
             ).first()
